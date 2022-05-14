@@ -26,7 +26,6 @@ public class TestesUnitariosApplication {
     System.out.println(locacao.getValor() == 5.0);
     System.out.println(DataUtils.isMesmaData(locacao.getDataLocacao(),new Date()));
     System.out.println(DataUtils.isMesmaData(locacao.getDataRetorno(),DataUtils.obterDataComDiferencaDias(1)));
-
   }
 
 }
