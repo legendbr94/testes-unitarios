@@ -5,14 +5,24 @@ import static com.pedro.testesunitarios.utils.DataUtils.adicionarDias;
 import com.pedro.testesunitarios.entidades.Filme;
 import com.pedro.testesunitarios.entidades.Locacao;
 import com.pedro.testesunitarios.entidades.Usuario;
+import com.pedro.testesunitarios.exceptions.FilmeSemEstoqueException;
+import com.pedro.testesunitarios.exceptions.LocadoraException;
 import java.util.Date;
 
 public class LocacaoService {
 
-  public static Locacao alugarFilme(Usuario usuario, Filme filme) throws Exception {
+  public static Locacao alugarFilme(Usuario usuario, Filme filme)
+      throws FilmeSemEstoqueException, LocadoraException {
 
+
+    if(usuario == null){
+      throw new LocadoraException("Usuário vazio");
+    }
+    if (filme == null){
+      throw new LocadoraException("Filme vazio");
+    }
     if(filme.getEstoque() == 0){
-      throw new Exception("Filme sem estoque");
+      throw new FilmeSemEstoqueException();
     }
 
     Locacao locacao = new Locacao();
