@@ -8,28 +8,66 @@ import com.pedro.testesunitarios.entidades.Usuario;
 import com.pedro.testesunitarios.exceptions.FilmeSemEstoqueException;
 import com.pedro.testesunitarios.exceptions.LocadoraException;
 import java.util.Date;
+import java.util.List;
 
 public class LocacaoService {
 
-  public static Locacao alugarFilme(Usuario usuario, Filme filme)
+  public Locacao alugarFilme(Usuario usuario, List<Filme> filmes)
       throws FilmeSemEstoqueException, LocadoraException {
 
-
-    if(usuario == null){
+    if (usuario == null) {
       throw new LocadoraException("Usuário vazio");
     }
-    if (filme == null){
+    if (filmes == null || filmes.isEmpty()) {
       throw new LocadoraException("Filme vazio");
     }
-    if(filme.getEstoque() == 0){
-      throw new FilmeSemEstoqueException();
+
+    for (Filme filme : filmes) {
+      if (filme.getEstoque() == 0) {
+        throw new FilmeSemEstoqueException();
+      }
     }
 
     Locacao locacao = new Locacao();
-    locacao.setFilme(filme);
+    locacao.setFilmes(filmes);
     locacao.setUsuario(usuario);
     locacao.setDataLocacao(new Date());
-    locacao.setValor(filme.getPrecoLocacao());
+
+    Double valorTotal = 0d;
+    int i = 0;
+    for (Filme filme : filmes) {
+      i++;
+
+      if (filmes.size() == 1) {
+        locacao.setValor(filme.getPrecoLocacao());
+      }
+
+      if (filmes.size() == 3 && i == 2) {
+        Double valorTerceiroFilme = filmes.get(i).getPrecoLocacao();
+        Double novoValor = calcularDescontoEmPercentual(25.0, valorTerceiroFilme);
+        filmes.get(i).setPrecoLocacao(novoValor);
+
+      }
+      if (filmes.size() == 4 && i == 3) {
+        Double valorQuartoFilme = filmes.get(i).getPrecoLocacao();
+        Double novoValor = calcularDescontoEmPercentual(50.0, valorQuartoFilme);
+        filmes.get(i).setPrecoLocacao(novoValor);
+      }
+      if (filmes.size() == 5 && i == 4) {
+        Double valorQuintoFilme = filmes.get(i).getPrecoLocacao();
+        Double novoValor = calcularDescontoEmPercentual(75.0, valorQuintoFilme);
+        filmes.get(i).setPrecoLocacao(novoValor);
+      }
+      if (filmes.size() >= 6 && i == 5) {
+        Double valorSextoFilme = filmes.get(i).getPrecoLocacao();
+        Double novoValor = calcularDescontoEmPercentual(100.0, valorSextoFilme);
+        filmes.get(i).setPrecoLocacao(novoValor);
+      }
+
+      valorTotal += filme.getPrecoLocacao();
+    }
+
+    locacao.setValor(valorTotal);
 
     //Entrega no dia seguinte
     Date dataEntrega = new Date();
@@ -40,5 +78,11 @@ public class LocacaoService {
     //TODO adicionar método para salvar
 
     return locacao;
+  }
+
+  private double calcularDescontoEmPercentual(Double percentual, Double valor) {
+    Double resultadoCalculo = percentual / 100 * valor;
+
+    return valor - resultadoCalculo;
   }
 }
